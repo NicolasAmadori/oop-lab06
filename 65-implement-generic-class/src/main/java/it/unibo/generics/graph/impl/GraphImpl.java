@@ -2,12 +2,15 @@ package it.unibo.generics.graph.impl;
 
 import it.unibo.generics.graph.api.*;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class GraphImpl<N> implements Graph<N>{
@@ -64,21 +67,43 @@ public class GraphImpl<N> implements Graph<N>{
     }
     
     public List<N> getPath(N source, N target) {
-        int[] color = new int[this.nodes.size()];
+        Queue<N> q = new ArrayDeque<N>();
+        int[] color = new int[this.nodes.size()];//0 = WHITE, 1 = GRAY, 2 = BLACK
         int[] d = new int[this.nodes.size()];
-        int[] p = new int[this.nodes.size()];
+        List<N> p = new N[this.nodes.size()];
         for(int i = 0; i < this.nodes.size(); i++) {
             color[i] = 0;//WHITE
             d[i] = Integer.MAX_VALUE;
-            p[i] = -1;
+            p[i] = null;
         }
+        color[this.getNodeIndex(source)] = 1;
+        d[this.getNodeIndex(source)] = 0;
         
-        return null;
+        q.add(source);
+        while(q.size() > 0) {
+            N u = q.element();
+            N[] adjNs = (N[])this.linkedNodes(u).toArray();
+            for (N v : adjNs) {
+                if(color[this.getNodeIndex(v)] == 0) {
+                    color[this.getNodeIndex(v)] = 1;
+                    d[this.getNodeIndex(v)] = d[this.getNodeIndex(u)] + 1;
+                    p[this.getNodeIndex(v)] = u;
+                    q.add(v);
+                }
+            }
+            q.remove();
+            color[this.getNodeIndex(u)] = 2;
+        }
+
+        List<N> path = new LinkedList<>(p);
+        return path;
     }
 
-    private int getNodeNumber(N node) {
-        for(int i = 0; i < this.nodes.size(); i++) {
-            if(this.nodes.[i] == node) {
+    private int getNodeIndex(N node) {
+        N[] nodesArray = (N[])this.nodes.toArray();
+
+        for(int i = 0; i < nodesArray.length; i++) {
+            if(nodesArray[i] == node) {
                 return i;
             }
         }
