@@ -70,11 +70,11 @@ public class GraphImpl<N> implements Graph<N>{
         Queue<N> q = new ArrayDeque<N>();
         int[] color = new int[this.nodes.size()];//0 = WHITE, 1 = GRAY, 2 = BLACK
         int[] d = new int[this.nodes.size()];
-        List<N> p = new N[this.nodes.size()];
+        List<N> p = new LinkedList<>();
         for(int i = 0; i < this.nodes.size(); i++) {
             color[i] = 0;//WHITE
             d[i] = Integer.MAX_VALUE;
-            p[i] = null;
+            p.add(null);
         }
         color[this.getNodeIndex(source)] = 1;
         d[this.getNodeIndex(source)] = 0;
@@ -87,7 +87,7 @@ public class GraphImpl<N> implements Graph<N>{
                 if(color[this.getNodeIndex(v)] == 0) {
                     color[this.getNodeIndex(v)] = 1;
                     d[this.getNodeIndex(v)] = d[this.getNodeIndex(u)] + 1;
-                    p[this.getNodeIndex(v)] = u;
+                    p.set(this.getNodeIndex(v), u);
                     q.add(v);
                 }
             }
@@ -95,7 +95,16 @@ public class GraphImpl<N> implements Graph<N>{
             color[this.getNodeIndex(u)] = 2;
         }
 
-        List<N> path = new LinkedList<>(p);
+        N prec = target;
+        List<N> reversePath = new LinkedList<>();
+        List<N> path = new LinkedList<>();
+        for(;prec != null; prec = p.get(this.getNodeIndex(prec))) {
+            reversePath.add(prec);
+        }
+
+        for (int i = reversePath.size() - 1; i >= 0; i--) {
+            path.add(reversePath.get(i));
+        }
         return path;
     }
 
